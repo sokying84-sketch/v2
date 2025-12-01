@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Save, Database, Code, CheckCircle2, Copy, AlertCircle, Link, ExternalLink, FileSpreadsheet, RefreshCw, UploadCloud, DownloadCloud, Radio, Palette } from 'lucide-react';
+import { Save, Database, Code, CheckCircle2, Copy, AlertCircle, Link, ExternalLink, FileSpreadsheet, RefreshCw, UploadCloud, DownloadCloud, Radio, Palette, Lock } from 'lucide-react';
 import { getAppSettings, saveAppSettings, pushFullDatabase, pullFullDatabase, THEMES, getTheme, applyTheme } from '../services/sheetService';
 
 const APP_SCRIPT_CODE = `/**
@@ -300,16 +299,19 @@ const SettingsPage: React.FC = () => {
   const [syncStatus, setSyncStatus] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('mushroom');
+  const [isFixed, setIsFixed] = useState(false);
 
   useEffect(() => {
     const settings = getAppSettings();
     setScriptUrl(settings.scriptUrl);
     setSheetUrl(settings.sheetUrl);
     setUseMock(settings.useMock);
+    setIsFixed(!!settings.isFixed);
     setCurrentTheme(getTheme());
   }, []);
 
   const handleSave = () => {
+    if (isFixed) return; // Prevent save if fixed
     let finalUseMock = useMock;
     if (scriptUrl && scriptUrl.length > 10) {
         finalUseMock = false;
@@ -335,7 +337,6 @@ const SettingsPage: React.FC = () => {
     setIsSyncing(true);
     setSyncStatus('Pushing full database to Sheet...');
     
-    // NEW: Push entire local state
     const result = await pushFullDatabase();
     
     setIsSyncing(false);
@@ -414,6 +415,12 @@ const SettingsPage: React.FC = () => {
                 <p>Ensure your Google Apps Script is deployed as a Web App with access set to "Anyone".</p>
               </div>
 
+              {isFixed && (
+                <div className="p-3 bg-nature-100 text-nature-800 rounded-lg flex items-center text-sm font-bold">
+                    <Lock size={16} className="mr-2"/> Configuration Locked in Code
+                </div>
+              )}
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-2">Google Apps Script Web App URL</label>
@@ -421,8 +428,9 @@ const SettingsPage: React.FC = () => {
                     type="text"
                     value={scriptUrl}
                     onChange={(e) => setScriptUrl(e.target.value)}
+                    disabled={isFixed}
                     placeholder="https://script.google.com/macros/s/..."
-                    className="w-full rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-nature-500 font-mono text-sm"
+                    className={`w-full rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-nature-500 font-mono text-sm ${isFixed ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}`}
                   />
                 </div>
 
@@ -433,8 +441,9 @@ const SettingsPage: React.FC = () => {
                       type="text"
                       value={sheetUrl}
                       onChange={(e) => setSheetUrl(e.target.value)}
+                      disabled={isFixed}
                       placeholder="https://docs.google.com/spreadsheets/d/..."
-                      className="flex-1 rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-nature-500 font-mono text-sm"
+                      className={`flex-1 rounded-lg border-slate-300 border p-3 focus:ring-2 focus:ring-nature-500 font-mono text-sm ${isFixed ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}`}
                     />
                     {sheetUrl && (
                       <a 
@@ -467,10 +476,12 @@ const SettingsPage: React.FC = () => {
                   </div>
               </div>
 
-              <button onClick={handleSave} className="px-6 py-3 bg-earth-800 text-white rounded-lg font-medium flex items-center">
-                {saved ? <CheckCircle2 size={18} className="mr-2" /> : <Save size={18} className="mr-2" />}
-                {saved ? 'Settings Saved' : 'Save Configuration'}
-              </button>
+              {!isFixed && (
+                <button onClick={handleSave} className="px-6 py-3 bg-earth-800 text-white rounded-lg font-medium flex items-center">
+                    {saved ? <CheckCircle2 size={18} className="mr-2" /> : <Save size={18} className="mr-2" />}
+                    {saved ? 'Settings Saved' : 'Save Configuration'}
+                </button>
+              )}
             </div>
           )}
 

@@ -3,6 +3,10 @@ import { MushroomBatch, BatchStatus, ApiResponse, InventoryItem, PurchaseOrder, 
 // ============================================================================
 // CONFIGURATION MANAGEMENT
 // ============================================================================
+// ENTER YOUR FIXED URLS HERE TO LOCK THEM IN
+const FIXED_SCRIPT_URL = ''; 
+const FIXED_SHEET_URL = '';
+
 const DEFAULT_SCRIPT_URL = ''; 
 const DEFAULT_SHEET_URL = ''; 
 
@@ -18,10 +22,15 @@ export const getAppSettings = () => {
   const storedSheetUrl = localStorage.getItem(STORAGE_KEY_SHEET_URL);
   const storedMock = localStorage.getItem(STORAGE_KEY_MOCK);
   
+  // Prioritize FIXED constants if they are set (not empty string)
+  const finalScriptUrl = FIXED_SCRIPT_URL !== '' ? FIXED_SCRIPT_URL : (storedUrl || DEFAULT_SCRIPT_URL);
+  const finalSheetUrl = FIXED_SHEET_URL !== '' ? FIXED_SHEET_URL : (storedSheetUrl || DEFAULT_SHEET_URL);
+  
   return {
-    scriptUrl: storedUrl || DEFAULT_SCRIPT_URL,
-    sheetUrl: storedSheetUrl || DEFAULT_SHEET_URL,
-    useMock: storedMock !== null ? storedMock === 'true' : (DEFAULT_SCRIPT_URL ? false : true),
+    scriptUrl: finalScriptUrl,
+    sheetUrl: finalSheetUrl,
+    useMock: storedMock !== null ? storedMock === 'true' : (finalScriptUrl ? false : true),
+    isFixed: FIXED_SCRIPT_URL !== ''
   };
 };
 
