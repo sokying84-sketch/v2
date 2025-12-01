@@ -245,7 +245,7 @@ const ReceivingPage: React.FC<ReceivingPageProps> = ({ prefillData, onClear }) =
             </li>
             <li className="flex items-start">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white border border-earth-200 text-earth-600 flex items-center justify-center mr-3 font-bold text-xs">3</span>
-              Manually sort random sample for spoilage. If >5% spoilage, flag for manager review.
+              Manually sort random sample for spoilage. If &gt;5% spoilage, flag for manager review.
             </li>
             <li className="flex items-start">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-white border border-earth-200 text-earth-600 flex items-center justify-center mr-3 font-bold text-xs">4</span>
